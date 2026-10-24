@@ -288,7 +288,8 @@ test('a tracked-only review retains its scope through save, submit, reload and l
   const { body: filtered } = await loadScope(server.url, { repoPath, untracked: false });
   assert.deepEqual(filtered.files, [{ path: 'app.js', status: 'M' }]);
   const inherited = await (await fetch(`${server.url}/api/load-comments/${filtered.repoId}`)).json();
-  assert.deepEqual(inherited.comments, [oldComment]);
+  assert.deepEqual(inherited.comments.map(({ key, ...comment }) => comment), [oldComment]);
+  assert.match(inherited.comments[0].key, /^[A-Za-z0-9_-]{8}$/);
   await post('save-comments', { repoId: filtered.repoId, comments: [...inherited.comments,
     { file: 'app.js', line: 1, lineContent: 'after', text: 'Check this edit.' }
   ] });
@@ -620,7 +621,7 @@ test('comments survive a save and load round trip', async t => {
   assert.equal(loaded.comments.length, 1);
   assert.equal(loaded.comments[0].text, 'rename this');
   assert.equal(loaded.comments[0].selectedText, 'a');
-  assert.deepEqual(loaded.comments[0].followUps, [
+  assert.deepEqual(loaded.comments[0].followUps.map(({ key, ...followUp }) => followUp), [
     { text: 'still open', timestamp: '2026-08-10T09:00:00.000Z' }
   ]);
   assert.ok(!('clientOnlyField' in loaded.comments[0]));
@@ -942,7 +943,9 @@ test('submitting also writes a machine-readable review beside the text one', asy
   assert.match(body.review.repository.head, /^[0-9a-f]{40}$/);
   assert.equal(body.review.repository.branch, 'main');
   assert.equal(body.review.mode, 'working');
-  assert.deepEqual(body.review.comments, [{
+  const [{ key, ...exported }] = body.review.comments;
+  assert.match(key, /^[A-Za-z0-9_-]{8}$/, 'every exported comment carries the key replies are addressed by');
+  assert.deepEqual([exported], [{
     id: 'app.js:1',
     file: 'app.js',
     line: 1,
@@ -1785,6 +1788,31 @@ test('a server no browser ever opened keeps serving', async () => {
   } finally {
     await server.close();
   }
+});
+
+test('a tab that has moved on to the live feed still counts as open', async t => {
+  // Once a repository is open the page holds /api/events and closes
+  // /api/alive, so that a tab costs one connection rather than two.
+  let idle = 0;
+  const server = await startTestServer({ onIdle: () => { idle += 1; }, idleGraceMs: GRACE });
+  const repoPath = await createTempRepo();
+  t.after(async () => { await server.close(); await cleanup(repoPath); });
+  await commitFiles(repoPath, { 'app.js': 'a\n' }, 'initial');
+  const { repoId } = await loadRepo(server.url, repoPath);
+
+  const alive = await openTab(server.url);
+  const controller = new AbortController();
+  const feed = await fetch(`${server.url}/api/events/${repoId}`, { signal: controller.signal });
+  const reader = feed.body.getReader();
+  reader.read().catch(() => {});
+  alive.close();
+
+  await settle(GRACE * 3);
+  assert.equal(idle, 0, 'the feed is holding the tab open');
+
+  controller.abort();
+  await settle(GRACE * 3);
+  assert.equal(idle, 1, 'and closing it is the tab leaving');
 });
 
 test('without an onIdle there is nothing to tell, and nothing breaks', async () => {

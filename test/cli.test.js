@@ -20,6 +20,13 @@ test('parseArgs defaults to serving, with no repository and an automatic browser
     json: false,
     format: 'json',
     file: null,
+    session: null,
+    fork: false,
+    list: false,
+    key: null,
+    text: null,
+    textFromStdin: false,
+    as: null,
     help: false,
     version: false
   });
