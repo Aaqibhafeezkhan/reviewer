@@ -3,7 +3,7 @@
 [![CI](https://github.com/dheerajjha/reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/dheerajjha/reviewer/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](package.json)
-[![Tests](https://img.shields.io/badge/tests-415-brightgreen.svg)](test/)
+[![Tests](https://img.shields.io/badge/tests-425-brightgreen.svg)](test/)
 [![Dependencies](https://img.shields.io/badge/dependencies-3-brightgreen.svg)](package.json)
 
 **English** · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
@@ -398,8 +398,8 @@ The UI is a client of this; nothing is hidden from you.
 | `GET /api/alive` | Held open by the page; when the last one closes, a terminal run stops |
 | `GET /api/file/:repoId/:path` | The file's diff, as structured lines |
 | `GET /api/file-full/:repoId/:path` | Every line of the file, for context |
-| `POST /api/save-comments` | Persist the current comments |
-| `GET /api/load-comments/:repoId` | Restore saved comments |
+| `POST /api/save-comments` | Persist the current comments. Send back the `lastUpdated` you loaded and the save is conditional: if the file has moved on since, it answers `409` with the current `comments` and `lastUpdated` instead of overwriting them |
+| `GET /api/load-comments/:repoId` | Restore saved comments, with `lastUpdated`, the version token a conditional save sends back |
 | `POST /api/submit-review` | Render the saved comments to a review file |
 | `DELETE /api/cleanup/:repoId` | End the session; files on disk are untouched |
 
@@ -437,6 +437,10 @@ they have no file diff.
 
 Each comment requires `file` (non-empty string), `line` (positive integer), and `text` (non-empty string). `lineContent`, `selectedText`, and `followUps` are optional.
 
+Add `"lastUpdated"` with the value `load-comments` returned (`null` for a review
+not saved yet) to make the save conditional, as the page does. Without it the
+save overwrites whatever is on disk, as it always has.
+
 `POST /api/submit-review` renders the previously saved comments:
 
 ```json
@@ -467,7 +471,7 @@ rather than a public issue.
 
 ```bash
 npm install           # 3 dependencies, no build step, ~6MB
-npm test              # 415 tests
+npm test              # 425 tests
 npm run test:watch
 npm run test:coverage
 ```
