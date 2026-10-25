@@ -6,6 +6,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Compare now prefers a fork's `upstream` default branch, then the default branch recorded by `origin/HEAD`, before falling back to the familiar branch names. Repositories without a recorded remote HEAD keep the fallback behavior.
+
 ## [2.17.0] - 2026-10-24
 
 Search across the whole change, and the repository around it, from the

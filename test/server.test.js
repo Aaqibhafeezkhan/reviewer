@@ -2261,10 +2261,24 @@ test('the refs list offers branches, current one marked, newest activity first',
   assert.equal(refs.current, 'feature/auth');
   assert.deepEqual(refs.branches.map(b => b.name).sort(), ['feature/auth', 'feature/billing', 'main']);
   assert.deepEqual(refs.remotes.map(r => r.name), ['origin/main'], 'origin/HEAD is a pointer, not a branch');
+  assert.deepEqual(refs.defaults, { origin: 'origin/main' });
   assert.deepEqual(refs.tags.map(tag => tag.name), ['v1.0']);
   assert.ok(refs.commits.length > 0);
   assert.match(refs.branches[0].sha, /^[0-9a-f]{40}$/);
   assert.ok(refs.branches[0].when.length > 0);
+});
+
+
+test('the refs list reports no remote default when origin/HEAD is not recorded', async t => {
+  const server = await startTestServer();
+  const repoPath = await repoWithDivergedBranches();
+  t.after(async () => { await server.close(); await cleanup(repoPath); });
+
+  await git(repoPath, ['update-ref', 'refs/remotes/origin/main', 'main']);
+  const { body } = await loadScope(server.url, { repoPath });
+  const refs = await (await fetch(`${server.url}/api/refs/${body.repoId}`)).json();
+
+  assert.deepEqual(refs.defaults, {});
 });
 
 test('the refs list reports a detached HEAD as no current branch, not as one called HEAD', async t => {

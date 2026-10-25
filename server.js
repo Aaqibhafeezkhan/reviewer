@@ -652,12 +652,31 @@ function createApp(options = {}) {
       recentCommits(git, COMMIT_LIST_LIMIT, head).catch(() => [])
     ]);
 
+    // A remote's symbolic HEAD records its default branch. It is not a branch
+    // itself, so refList deliberately excludes it; report the target separately
+    // for the compare picker without changing the refs offered to the user.
+    const remoteNames = [...new Set(remotes.map(ref => ref.name.split('/')[0]))];
+    const defaults = {};
+    await Promise.all(remoteNames.map(async remote => {
+      try {
+        const target = (await git.raw([
+          'symbolic-ref', '--quiet', '--short', `refs/remotes/${remote}/HEAD`
+        ])).trim();
+        if (target.startsWith(`${remote}/`) && target.split('/').length > 1) {
+          defaults[remote] = target;
+        }
+      } catch {
+        // A remote added by hand and fetched may not have a recorded HEAD.
+      }
+    }));
+
     res.json({
       // `HEAD` from --abbrev-ref means detached; say so rather than pretend
       // there is a branch called HEAD.
       current: current === 'HEAD' ? null : current,
       branches,
       remotes,
+      defaults,
       tags,
       commits
     });
