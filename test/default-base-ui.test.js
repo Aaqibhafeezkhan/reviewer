@@ -28,6 +28,17 @@ test('a fork compares against upstream default before its own origin default', (
   assert.equal(chooseDefaultBase(refs), 'upstream/main');
 });
 
+test('an upstream remote without recorded HEAD prefers conventional default branches', () => {
+  const refs = {
+    current: 'feature/fix',
+    branches: [{ name: 'feature/fix' }],
+    remotes: [{ name: 'origin/main' }, { name: 'upstream/main' }],
+    defaults: { origin: 'origin/main' }
+  };
+
+  assert.equal(chooseDefaultBase(refs), 'upstream/main');
+});
+
 test('the recorded origin default supports branches named trunk', () => {
   const refs = {
     current: 'feature/fix',
