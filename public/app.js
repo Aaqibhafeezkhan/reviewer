@@ -590,6 +590,7 @@ function chooseDefaultBase(refs) {
   const known = new Set([...refs.branches, ...refs.remotes].map(ref => ref.name));
   const candidates = [
     refs.defaults?.upstream,
+    'upstream/main', 'upstream/master',
     refs.defaults?.origin,
     'origin/main', 'main', 'origin/master', 'master', 'origin/develop', 'develop'
   ];
