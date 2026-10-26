@@ -11,9 +11,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Expected `reviewer export` failures print only the error line and still exit
   with code 2. Missing-review errors include the data directory searched; invalid
   flags and missing flag values still print usage help.
-- Expected `reviewer export` failures print only the error line and still exit
-  with code 2. Missing-review errors include the data directory searched; invalid
-  flags and missing flag values still print usage help.
 - Compare now prefers a fork's `upstream` default branch, then the default branch
   recorded by `origin/HEAD`, before falling back to the familiar branch names.
   Repositories without a recorded remote HEAD keep the fallback behavior.
