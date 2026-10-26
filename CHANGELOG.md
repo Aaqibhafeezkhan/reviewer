@@ -1,3 +1,9 @@
+# Changelog
+
+All notable changes to this project are documented here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 
 ### Fixed
@@ -5,15 +11,12 @@
 - Expected `reviewer export` failures print only the error line and still exit
   with code 2. Missing-review errors include the data directory searched; invalid
   flags and missing flag values still print usage help.
+- Expected `reviewer export` failures print only the error line and still exit
+  with code 2. Missing-review errors include the data directory searched; invalid
+  flags and missing flag values still print usage help.
 - Compare now prefers a fork's `upstream` default branch, then the default branch
   recorded by `origin/HEAD`, before falling back to the familiar branch names.
   Repositories without a recorded remote HEAD keep the fallback behavior.
-# Changelog
-
-All notable changes to this project are documented here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
-adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 
 ## [2.17.0] - 2026-10-24
 
@@ -964,3 +967,4 @@ GitHub-style diff view.
 [2.1.0]: https://github.com/dheerajjha/reviewer/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/dheerajjha/reviewer/releases/tag/v2.0.0
 [1.1.0]: https://github.com/dheerajjha/reviewer/releases/tag/v1.1.0
+
