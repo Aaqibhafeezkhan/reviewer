@@ -584,13 +584,21 @@ function swapCompare() {
  * itself is always empty, and offering it as a default would make the first
  * click of the feature look broken.
  */
-function defaultBase() {
-  const refs = currentRefs;
+function chooseDefaultBase(refs) {
   if (!refs) return null;
 
   const known = new Set([...refs.branches, ...refs.remotes].map(ref => ref.name));
-  const candidates = ['origin/main', 'main', 'origin/master', 'master', 'origin/develop', 'develop'];
-  return candidates.find(name => known.has(name) && name !== refs.current) ?? null;
+  const candidates = [
+    refs.defaults?.upstream,
+    'upstream/main', 'upstream/master',
+    refs.defaults?.origin,
+    'origin/main', 'main', 'origin/master', 'master', 'origin/develop', 'develop'
+  ];
+  return candidates.find(name => name && known.has(name) && name !== refs.current) ?? null;
+}
+
+function defaultBase() {
+  return chooseDefaultBase(currentRefs);
 }
 
 /**
