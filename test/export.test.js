@@ -60,7 +60,7 @@ test('a saved review is returned as a code-review/v1 document', async () => {
   await cleanup(repo);
 });
 
-test('the commit and branch of the working tree are recorded', async () => {
+test('the branch is recorded while legacy reviews have an unknown baseline', async () => {
   const dir = await reviewsDir();
   const repo = await createTempRepo();
   await writeFiles(repo, { 'src/auth.js': 'let a\n' });
@@ -69,7 +69,7 @@ test('the commit and branch of the working tree are recorded', async () => {
 
   const document = await loadReviewDocument(dir, repo);
 
-  assert.match(document.repository.head, /^[0-9a-f]{40}$/);
+  assert.equal(document.repository.head, null);
   assert.equal(document.repository.branch, 'main');
 
   await cleanup(repo);
