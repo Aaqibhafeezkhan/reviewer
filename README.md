@@ -577,7 +577,7 @@ rather than a public issue.
 
 ```bash
 npm install           # 3 dependencies, no build step, ~6MB
-npm test              # 531 tests
+npm test              # 534 tests
 npm run test:watch
 npm run test:coverage
 ```
